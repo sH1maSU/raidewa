@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Snake Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      border: 2px solid #fff;
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const box = 20;
+    const canvasSize = 400;
+    let score = 0;
+
+    let snake = [
+      { x: 9 * box, y: 10 * box }
+    ];
+
+    let direction = "";
+
+    let food = {
+      x: Math.floor(Math.random() * (canvas.width / box)) * box,
+      y: Math.floor(Math.random() * (canvas.height / box)) * box
+    };
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+      else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+      else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+      else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+      // วาดงู
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? "lime" : "green";
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      }
+
+      // วาดอาหาร
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x, food.y, box, box);
+
+      // การเคลื่อนไหว
+      let head = { ...snake[0] };
+
+      if (direction === "LEFT") head.x -= box;
+      if (direction === "RIGHT") head.x += box;
+      if (direction === "UP") head.y -= box;
+      if (direction === "DOWN") head.y += box;
+
+      // เกมจบ: ชนขอบ
+      if (
+        head.x < 0 || head.x >= canvasSize ||
+        head.y < 0 || head.y >= canvasSize ||
+        snake.some((s, index) => index > 0 && s.x === head.x && s.y === head.y)
+      ) {
+        clearInterval(game);
+        alert("Game Over! Score: " + score);
+        location.reload();
+      }
+
+      snake.unshift(head);
+
+      // กินอาหาร
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        food = {
+          x: Math.floor(Math.random() * (canvas.width / box)) * box,
+          y: Math.floor(Math.random() * (canvas.height / box)) * box
+        };
+      } else {
+        snake.pop();
+      }
+    }
+
+    const game = setInterval(draw, 100);
+  </script>
+</body>
+</html>
